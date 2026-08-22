@@ -17,4 +17,4 @@ RUN cd apps/api && npm install --production
 EXPOSE 3001
 
 # Run the API server
-CMD ["node", "apps/api/src/index.js"]
+CMD ["node", "apps/api/src/server.js"]
