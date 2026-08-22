@@ -2,15 +2,19 @@ const { Pool } = require('pg');
 
 class PostgresProvider {
   constructor() {
-    this.pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      // Fallbacks if DATABASE_URL is not provided
-      host: process.env.DB_HOST || 'localhost',
-      port: process.env.DB_PORT || 5432,
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
-      database: process.env.DB_NAME || 'decisionscope',
-    });
+    const connectionConfig = process.env.DATABASE_URL
+      ? {
+          connectionString: process.env.DATABASE_URL,
+          ssl: { rejectUnauthorized: false }
+        }
+      : {
+          host: process.env.DB_HOST || 'localhost',
+          port: process.env.DB_PORT || 5432,
+          user: process.env.DB_USER || 'postgres',
+          password: process.env.DB_PASSWORD || 'postgres',
+          database: process.env.DB_NAME || 'decisionscope',
+        };
+    this.pool = new Pool(connectionConfig);
   }
 
   async init() {

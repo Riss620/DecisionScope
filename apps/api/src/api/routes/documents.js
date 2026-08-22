@@ -4,7 +4,7 @@ const path = require('path');
 const router = express.Router();
 
 const { requireAuth } = require('../middleware/auth');
-const LocalFileStorageProvider = require('../../infrastructure/storage/LocalFileStorageProvider');
+const { LocalFileStorageProvider } = require('../../infrastructure/storage/LocalFileStorageProvider');
 const PdfDocumentParser = require('../../infrastructure/parsers/PdfDocumentParser');
 const DocxDocumentParser = require('../../infrastructure/parsers/DocxDocumentParser');
 const DocumentUnderstandingService = require('../../services/DocumentUnderstandingService');
