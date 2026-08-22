@@ -9,9 +9,10 @@ dotenv.config();
 
 // Adapters
 const { createLLMProvider } = require('./infrastructure/llm/createLLMProvider');
+const { LocalFileStorageProvider } = require('./infrastructure/storage/LocalFileStorageProvider');
 const { QdrantRetrievalProvider } = require('./infrastructure/retrieval/QdrantRetrievalProvider');
+const { PostgresProvider } = require('./infrastructure/db/PostgresProvider');
 const { SocketEventPublisher } = require('./infrastructure/events/SocketEventPublisher');
-const { MySQLProvider } = require('./infrastructure/db/MySQLProvider');
 
 // Agents & Orchestration
 const {
@@ -43,9 +44,10 @@ async function bootstrap() {
   // 1. Instantiate Infrastructure
   const llmProvider = createLLMProvider(); // primary model (llama3)
   const secondaryLlmProvider = createLLMProvider('phi3'); // secondary model for critics/input
+  const storageProvider = new LocalFileStorageProvider(process.env.STORAGE_PATH || './storage');
   const retrievalProvider = new QdrantRetrievalProvider(process.env.QDRANT_URL, process.env.QDRANT_API_KEY);
   const eventPublisher = new SocketEventPublisher(io);
-  const dbProvider = new MySQLProvider();
+  const dbProvider = new PostgresProvider();
   await dbProvider.init();
 
   // 2. Instantiate Agents (Business Logic)

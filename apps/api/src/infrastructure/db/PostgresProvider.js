@@ -1,22 +1,21 @@
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 
-class MySQLProvider {
+class PostgresProvider {
   constructor() {
-    this.pool = mysql.createPool({
-      host: process.env.MYSQL_HOST || 'localhost',
-      port: process.env.MYSQL_PORT || 3306,
-      user: process.env.MYSQL_USER || 'decisionscope',
-      password: process.env.MYSQL_PASSWORD || 'decisionscope_password',
-      database: process.env.MYSQL_DATABASE || 'decisionscope',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
+    this.pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      // Fallbacks if DATABASE_URL is not provided
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 5432,
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      database: process.env.DB_NAME || 'decisionscope',
     });
   }
 
   async init() {
     try {
-      console.log('Initializing MySQL tables...');
+      console.log('Initializing PostgreSQL tables...');
       
       await this.pool.query(`
         CREATE TABLE IF NOT EXISTS users (
@@ -37,7 +36,7 @@ class MySQLProvider {
           confidence INT,
           status VARCHAR(50) DEFAULT 'pending',
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )
       `);
@@ -50,9 +49,9 @@ class MySQLProvider {
         // Column likely exists, which is fine
       }
       
-      console.log('MySQL tables initialized successfully.');
+      console.log('PostgreSQL tables initialized successfully.');
     } catch (err) {
-      console.error('Failed to initialize MySQL tables:', err);
+      console.error('Failed to initialize PostgreSQL tables:', err);
       throw err;
     }
   }
@@ -60,7 +59,9 @@ class MySQLProvider {
   async insertDecision(id, userId, policyContext, proposedAction) {
     try {
       await this.pool.query(
-        'INSERT INTO decisions (id, user_id, policy_context, proposed_action, status) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE policy_context=VALUES(policy_context), proposed_action=VALUES(proposed_action)',
+        `INSERT INTO decisions (id, user_id, policy_context, proposed_action, status) 
+         VALUES ($1, $2, $3, $4, $5) 
+         ON CONFLICT (id) DO UPDATE SET policy_context=EXCLUDED.policy_context, proposed_action=EXCLUDED.proposed_action`,
         [id, userId, policyContext, proposedAction, 'pending']
       );
     } catch (err) {
@@ -74,12 +75,12 @@ class MySQLProvider {
       
       if (status === 'error') {
         await this.pool.query(
-          'UPDATE decisions SET status = ?, final_recommendation = ? WHERE id = ?',
+          'UPDATE decisions SET status = $1, final_recommendation = $2 WHERE id = $3',
           [status, finalRecommendation, id]
         );
       } else {
         await this.pool.query(
-          'UPDATE decisions SET status = ?, final_recommendation = ?, confidence = ? WHERE id = ?',
+          'UPDATE decisions SET status = $1, final_recommendation = $2, confidence = $3 WHERE id = $4',
           [status, finalRecommendation, confidence, id]
         );
       }
@@ -91,7 +92,7 @@ class MySQLProvider {
   async getDecisions(userId) {
     try {
       if (!userId) return [];
-      const [rows] = await this.pool.query('SELECT * FROM decisions WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+      const { rows } = await this.pool.query('SELECT * FROM decisions WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
       return rows;
     } catch (err) {
       console.error('Error fetching decisions:', err);
@@ -102,8 +103,8 @@ class MySQLProvider {
   async deleteDecision(id, userId) {
     try {
       if (!userId || !id) return false;
-      const [result] = await this.pool.query('DELETE FROM decisions WHERE id = ? AND user_id = ?', [id, userId]);
-      return result.affectedRows > 0;
+      const { rowCount } = await this.pool.query('DELETE FROM decisions WHERE id = $1 AND user_id = $2', [id, userId]);
+      return rowCount > 0;
     } catch (err) {
       console.error('Error deleting decision:', err);
       return false;
@@ -112,14 +113,14 @@ class MySQLProvider {
 
   async getStats() {
     try {
-      const [totalRows] = await this.pool.query('SELECT COUNT(*) as count FROM decisions');
-      const [statusRows] = await this.pool.query('SELECT status, COUNT(*) as count FROM decisions GROUP BY status');
-      const [confidenceRows] = await this.pool.query('SELECT AVG(confidence) as avg_confidence FROM decisions WHERE confidence IS NOT NULL');
+      const { rows: totalRows } = await this.pool.query('SELECT COUNT(*) as count FROM decisions');
+      const { rows: statusRows } = await this.pool.query('SELECT status, COUNT(*) as count FROM decisions GROUP BY status');
+      const { rows: confidenceRows } = await this.pool.query('SELECT AVG(confidence) as avg_confidence FROM decisions WHERE confidence IS NOT NULL');
       
       const stats = {
-        total: totalRows[0].count,
-        byStatus: statusRows.reduce((acc, row) => ({ ...acc, [row.status]: row.count }), {}),
-        avgConfidence: confidenceRows[0].avg_confidence ? Math.round(confidenceRows[0].avg_confidence) : 0
+        total: parseInt(totalRows[0].count, 10),
+        byStatus: statusRows.reduce((acc, row) => ({ ...acc, [row.status]: parseInt(row.count, 10) }), {}),
+        avgConfidence: confidenceRows[0].avg_confidence ? Math.round(parseFloat(confidenceRows[0].avg_confidence)) : 0
       };
       return stats;
     } catch (err) {
@@ -127,9 +128,10 @@ class MySQLProvider {
       return { total: 0, byStatus: {}, avgConfidence: 0 };
     }
   }
+
   async createUser(id, email, passwordHash) {
     try {
-      await this.pool.query('INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)', [id, email, passwordHash]);
+      await this.pool.query('INSERT INTO users (id, email, password_hash) VALUES ($1, $2, $3)', [id, email, passwordHash]);
       return true;
     } catch (err) {
       console.error('Error creating user:', err);
@@ -139,7 +141,7 @@ class MySQLProvider {
 
   async findUserByEmail(email) {
     try {
-      const [rows] = await this.pool.query('SELECT * FROM users WHERE email = ?', [email]);
+      const { rows } = await this.pool.query('SELECT * FROM users WHERE email = $1', [email]);
       return rows[0];
     } catch (err) {
       console.error('Error finding user:', err);
@@ -149,7 +151,7 @@ class MySQLProvider {
 
   async findUserById(id) {
     try {
-      const [rows] = await this.pool.query('SELECT * FROM users WHERE id = ?', [id]);
+      const { rows } = await this.pool.query('SELECT * FROM users WHERE id = $1', [id]);
       return rows[0];
     } catch (err) {
       console.error('Error finding user by id:', err);
@@ -158,4 +160,4 @@ class MySQLProvider {
   }
 }
 
-module.exports = { MySQLProvider };
+module.exports = { PostgresProvider };

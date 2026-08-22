@@ -12,8 +12,9 @@ export function SimulationProvider({ children }) {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    // Initialize socket connection globally
-    const newSocket = io('http://localhost:3001');
+    // Initialize socket connection globally, respecting production domains
+    const backendUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : '/');
+    const newSocket = io(backendUrl);
     setSocket(newSocket);
 
     // Dynamic listener for any simulation events
