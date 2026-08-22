@@ -40,4 +40,4 @@ class LocalFileStorageProvider extends StorageProvider {
   }
 }
 
-module.exports = LocalFileStorageProvider;
+module.exports = { LocalFileStorageProvider };
