@@ -1,5 +1,5 @@
 const { QdrantClient } = require('@qdrant/js-client-rest');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 
 class QdrantService {
   constructor() {
@@ -24,7 +24,7 @@ class QdrantService {
   }
 
   async upsertVector(collectionName, vector, payload) {
-    const id = uuidv4();
+    const id = crypto.randomUUID();
     await this.client.upsert(collectionName, {
       wait: true,
       points: [

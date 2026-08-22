@@ -1,5 +1,5 @@
 const pdfParse = require('pdf-parse');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 const DocumentParser = require('./DocumentParser');
 
 class PdfDocumentParser extends DocumentParser {
@@ -46,7 +46,7 @@ class PdfDocumentParser extends DocumentParser {
       }
       
       return {
-        documentId: uuidv4(),
+        documentId: crypto.randomUUID(),
         filename,
         mimeType,
         pageCount: data.numpages,

@@ -1,5 +1,5 @@
 const mammoth = require('mammoth');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 const DocumentParser = require('./DocumentParser');
 
 class DocxDocumentParser extends DocumentParser {
@@ -13,7 +13,7 @@ class DocxDocumentParser extends DocumentParser {
       }
       
       return {
-        documentId: uuidv4(),
+        documentId: crypto.randomUUID(),
         filename,
         mimeType,
         pageCount: 1, // Mammoth doesn't provide page counts

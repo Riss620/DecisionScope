@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 const { JWT_SECRET } = require('../middleware/auth');
 
 module.exports = function(dbProvider) {
@@ -26,7 +26,7 @@ module.exports = function(dbProvider) {
 
       const salt = await bcrypt.genSalt(10);
       const passwordHash = await bcrypt.hash(password, salt);
-      const userId = uuidv4();
+      const userId = crypto.randomUUID();
 
       const success = await dbProvider.createUser(userId, email, passwordHash);
       if (!success) {
