@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+:root {
+  /* Light Mode Palette (Default) */
+  --bg-primary: 0 0% 100%;         /* White */
+  --bg-secondary: 0 0% 97%;        /* Very light grey */
+  --surface-glass: 0 0% 98%;       /* Slightly off white */
+  --accent-primary: 217 91% 60%;   /* #3b82f6 Blue for primary actions */
+  --accent-glow: 217 91% 60%;
+  
+  --text-primary: 0 0% 9%;         /* Very dark grey */
+  --text-secondary: 0 0% 30%;      /* Mid grey */
+  --text-muted: 0 0% 50%;          /* Dimmed grey */
+}
+
+.dark {
+  /* Minimalist Pure Black Palette (Dark Mode) */
+  --bg-primary: 0 0% 0%;         /* Pure Black */
+  --bg-secondary: 0 0% 6%;       /* Very dark grey for panels */
+  --surface-glass: 0 0% 8%;      /* Slightly lighter for inputs */
+  --accent-primary: 217 91% 60%; /* #3b82f6 Blue for primary actions */
+  --accent-glow: 217 91% 60%;
+  
+  --text-primary: 0 0% 95%;      /* Off-white for high contrast */
+  --text-secondary: 0 0% 65%;    /* Soft grey */
+  --text-muted: 0 0% 45%;        /* Dimmed grey */
+}
+
+body {
+  background: hsl(var(--bg-primary));
+  color: hsl(var(--text-primary));
+  -webkit-font-smoothing: antialiased;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+}
+
+/* Minimalist Flat Utilities */
+.glass-panel {
+  background: hsl(var(--bg-secondary));
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+}
+
+.dark .glass-panel {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-input {
+  background: hsl(var(--surface-glass));
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: hsl(var(--text-primary));
+  transition: all 0.2s ease;
+}
+
+.dark .glass-input {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-input:focus {
+  border-color: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.02);
+  outline: none;
+}
+
+.dark .glass-input:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Micro-animations & Interactive Elements */
+.hover-lift {
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.hover-lift:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+}
+.dark .hover-lift:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.btn-primary {
+  background: hsl(var(--accent-primary));
+  color: white;
+  transition: all 0.2s ease;
+  border: none;
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  background: #2563eb; /* Slightly darker blue */
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: hsl(var(--text-secondary));
+  transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: hsl(var(--text-primary));
+}
+
+.dark .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

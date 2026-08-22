@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: decisionscope-api
+    env: node
+    rootDir: apps/api
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CLIENT_URL
+        value: https://your-frontend-domain.vercel.app
+      - key: LLM_PROVIDER
+        value: openai # or whichever provider is hosted
+      - key: DATABASE_URL
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
