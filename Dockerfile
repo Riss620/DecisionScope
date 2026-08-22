@@ -3,8 +3,7 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy root configurations
-COPY package.json ./
+
 
 # Copy api app
 COPY apps/api/package.json ./apps/api/
