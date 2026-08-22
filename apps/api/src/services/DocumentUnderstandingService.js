@@ -4,7 +4,7 @@ const { PromptTemplate } = require('@langchain/core/prompts');
 class DocumentUnderstandingService {
   constructor() {
     this.model = new ChatOpenAI({
-      modelName: process.env.LLM_MODEL || 'gemini-3.5-flash',
+      modelName: process.env.LLM_MODEL || 'gemini-3.6-flash',
       temperature: 0.1,
       maxRetries: 3
     });

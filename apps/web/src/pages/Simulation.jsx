@@ -271,20 +271,20 @@ export default function Simulation() {
 
       {/* Sticky Bottom Input Bar */}
       <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[hsl(var(--bg-primary))] via-[hsl(var(--bg-primary))] to-transparent pt-12 pb-6 px-4 md:px-6 z-20 pointer-events-none">
-        <div className="max-w-3xl mx-auto bg-[hsl(var(--bg-secondary))] border border-[rgba(0,0,0,0.1)] dark:border-[rgba(255,255,255,0.1)] rounded-2xl p-4 md:p-5 shadow-2xl transition-all duration-300 pointer-events-auto">
+        <div className="max-w-3xl mx-auto bg-[hsl(var(--bg-secondary))] border border-[rgba(0,0,0,0.1)] dark:border-[rgba(255,255,255,0.1)] rounded-xl p-3 md:p-4 shadow-2xl transition-all duration-300 pointer-events-auto">
           
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 mb-1">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
               <Settings size={14} className="text-blue-500" />
               <span className="text-xs font-bold text-[hsl(var(--text-primary))] uppercase tracking-wider">Simulation Parameters</span>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <div>
-                <label className="block text-[10px] font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-2">Policy Context</label>
+                <label className="block text-[10px] font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-1">Policy Context</label>
                 <textarea 
                   className={`w-full bg-transparent border-b ${isConfiguring ? 'border-[rgba(0,0,0,0.2)] focus:border-[rgba(0,0,0,0.5)] dark:border-white/20 dark:focus:border-white/50' : 'border-transparent text-[hsl(var(--text-secondary))]'} pb-1 text-sm text-[hsl(var(--text-primary))] focus:outline-none transition-colors resize-none`}
-                  rows="2"
+                  rows="1"
                   placeholder="e.g. Updating grading system"
                   value={policyContext}
                   onChange={(e) => setPolicyContext(e.target.value)}
@@ -292,10 +292,10 @@ export default function Simulation() {
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-2">Proposed Action</label>
+                <label className="block text-[10px] font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-1">Proposed Action</label>
                 <textarea 
                   className={`w-full bg-transparent border-b ${isConfiguring ? 'border-[rgba(0,0,0,0.2)] focus:border-[rgba(0,0,0,0.5)] dark:border-white/20 dark:focus:border-white/50' : 'border-transparent text-[hsl(var(--text-secondary))]'} pb-1 text-sm text-[hsl(var(--text-primary))] focus:outline-none transition-colors resize-none`}
-                  rows="2"
+                  rows="1"
                   placeholder="e.g. Change from A-F to Pass/Fail"
                   value={proposedAction}
                   onChange={(e) => setProposedAction(e.target.value)}
@@ -304,7 +304,7 @@ export default function Simulation() {
               </div>
             </div>
 
-            <div className="flex justify-between items-end mt-2 pt-4 border-t border-[rgba(0,0,0,0.05)] dark:border-white/5">
+            <div className="flex justify-between items-end mt-1 pt-2 border-t border-[rgba(0,0,0,0.05)] dark:border-white/5">
               <span className="text-[10px] text-[hsl(var(--text-muted))] hidden sm:block">
                 {isConfiguring ? 'Configure parameters and run the simulation to begin.' : 'Simulation is in progress or completed.'}
               </span>

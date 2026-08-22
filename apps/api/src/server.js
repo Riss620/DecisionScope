@@ -48,7 +48,11 @@ async function bootstrap() {
   const retrievalProvider = new QdrantRetrievalProvider(process.env.QDRANT_URL, process.env.QDRANT_API_KEY);
   const eventPublisher = new SocketEventPublisher(io);
   const dbProvider = new PostgresProvider();
-  await dbProvider.init();
+  try {
+    await dbProvider.init();
+  } catch (dbErr) {
+    console.warn('⚠️  DB connection failed (non-fatal in dev):', dbErr.message);
+  }
 
   // 2. Instantiate Agents (Business Logic)
   const agents = {
