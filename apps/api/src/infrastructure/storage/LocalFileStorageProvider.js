@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 const StorageProvider = require('./StorageProvider');
 
 class LocalFileStorageProvider extends StorageProvider {
@@ -15,7 +15,7 @@ class LocalFileStorageProvider extends StorageProvider {
 
   async saveFile(file) {
     const fileExtension = path.extname(file.originalname);
-    const storageKey = `${uuidv4()}${fileExtension}`;
+    const storageKey = `${crypto.randomUUID()}${fileExtension}`;
     const destinationPath = path.join(this.baseDir, storageKey);
     
     // file is a multer file object
