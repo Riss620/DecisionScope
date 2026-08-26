@@ -1,4 +1,5 @@
 const express = require('express');
+const { readMemory, updateMemory, buildMemoryContext, createConversationMemory } = require('../../agents/memory');
 
 /**
  * Creates the decisions router.
@@ -36,17 +37,23 @@ module.exports = function(decisionGraph, eventPublisher, dbProvider) {
     res.status(202).json({ message: 'Simulation started', decisionId: id });
     
     // Only fallback to demo if explicitly requested, or if no LLM provider is configured at all
-    const hasLLMConfig = process.env.OPENAI_API_KEY || process.env.LLM_PROVIDER === 'ollama';
+    const hasLLMConfig = process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.LLM_PROVIDER === 'ollama' || process.env.LLM_PROVIDER === 'gemini';
     
     if (demo === true || !hasLLMConfig) {
       console.log('Running in demo mode...');
       return runDemoSimulation(id, eventPublisher, policyContext, proposedAction, dbProvider);
     }
     
+    // Initialize memory if it doesn't exist
+    createConversationMemory(id);
+    const memoryContext = buildMemoryContext(id);
+    
     const initialState = {
       decisionId: id,
+      conversationId: id,
       policyContext,
       proposedAction,
+      memory: memoryContext,
     };
 
     try {
@@ -65,7 +72,26 @@ module.exports = function(decisionGraph, eventPublisher, dbProvider) {
           state: stateUpdate,
           timestamp: new Date().toISOString()
         });
+        
+        if (stateUpdate.agentTrace && stateUpdate.agentTrace.events) {
+          const events = stateUpdate.agentTrace.events;
+          const latestEvent = events[events.length - 1];
+          if (latestEvent) {
+             eventPublisher.emit(`simulation:${id}:trace`, latestEvent);
+          }
+        }
       }
+      
+      // Update memory for next turn
+      updateMemory(id, {
+        previousPolicy: policyContext,
+        previousProposedAction: proposedAction,
+        previousEvidence: finalState.evidence,
+        previousStakeholderImpacts: finalState.stakeholderImpacts,
+        previousRisks: finalState.criticFeedback,
+        previousAlternatives: finalState.alternatives,
+        lastRecommendation: finalState.finalRecommendation,
+      });
       
       if (dbProvider) {
         if (finalState.status === 'error') {
@@ -104,7 +130,7 @@ module.exports = function(decisionGraph, eventPublisher, dbProvider) {
     }
     
     if (dbProvider) {
-      await dbProvider.pool.query('UPDATE decisions SET status = ? WHERE id = ? AND user_id = ?', [status, id, req.user.id]);
+      await dbProvider.pool.query('UPDATE decisions SET status = $1 WHERE id = $2 AND user_id = $3', [status, id, req.user.id]);
     }
     
     res.json({ success: true, status });
@@ -130,11 +156,10 @@ async function runDemoSimulation(id, eventPublisher, policyContext, proposedActi
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const demoStates = [
     { node: 'inputNode', state: { policyContext: policyContext, status: 'analyzing_evidence' } },
-    { node: 'evidenceNode', state: { evidence: ['Found historical precedent in 2018 where similar action was taken.', 'Student survey data from last year supports this direction.'], status: 'simulating_impacts' } },
-    { node: 'simulationNode', state: { stakeholderImpacts: { 'Students': 15, 'Faculty': -10, 'Administration': 25 }, status: 'critiquing' } },
-    { node: 'criticNode', state: { criticFeedback: ['Might cause slight pushback from faculty due to increased workload.', 'Potential communication gaps during transition.'], status: 'generating_alternatives' } },
-    { node: 'alternativeNode', state: { alternatives: ['Implement the change in phases rather than all at once to ease the transition.'], status: 'judging' } },
-    { node: 'judgeNode', state: { finalRecommendation: `Based on the proposal to "${proposedAction}", the overall impact is positive. However, due to faculty concerns, we recommend proceeding with the phased alternative.`, status: 'completed' } },
+    { node: 'evidenceToolNode', state: { evidence: ['Found historical precedent in 2018 where similar action was taken.', 'Student survey data from last year supports this direction.'], status: 'simulating_impacts' } },
+    { node: 'simulationToolNode', state: { stakeholderImpacts: { 'Students': 15, 'Faculty': -10, 'Administration': 25 }, status: 'critiquing' } },
+    { node: 'critiqueToolNode', state: { criticFeedback: ['Might cause slight pushback from faculty due to increased workload.', 'Potential communication gaps during transition.'], alternatives: ['Implement the change in phases rather than all at once to ease the transition.'], status: 'judging' } },
+    { node: 'finalJudge', state: { finalRecommendation: `Based on the proposal to "${proposedAction}", the overall impact is positive. However, due to faculty concerns, we recommend proceeding with the phased alternative.`, status: 'completed' } },
   ];
 
   try {

@@ -4,25 +4,29 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useAuth } from '../contexts/AuthContext';
 import { useSimulation } from '../contexts/SimulationContext';
-import { Send, Mic, Play, Settings, AlertCircle, CheckCircle, BrainCircuit } from 'lucide-react';
+import { Send, Mic, Play, Settings, AlertCircle, CheckCircle, BrainCircuit, Activity, Database, Wrench } from 'lucide-react';
 
 const renderStateDetails = (state, node) => {
   if (node === 'inputNode') return null;
+  if (node === 'plannerNode') return <p className="text-[hsl(var(--text-secondary))] text-sm">Evaluating state and selecting next tool...</p>;
   
-  if (node === 'evidenceNode' && state.evidence) {
+  if (node === 'evidenceToolNode' && state.evidence) {
     return (
       <div className="space-y-2 mt-2">
-        {state.evidence.map((item, i) => (
-          <div key={i} className="flex gap-3 text-sm text-slate-300">
-            <span className="text-slate-500">•</span>
-            <p>{item}</p>
-          </div>
-        ))}
+        {state.evidence.map((item, i) => {
+          const text = typeof item === 'string' ? item : (item.finding || JSON.stringify(item));
+          return (
+            <div key={i} className="flex gap-3 text-sm text-[hsl(var(--text-secondary))]">
+              <span className="text-[hsl(var(--text-muted))]">•</span>
+              <p>{text.replace(/^\* |\*\*/g, '')}</p> 
+            </div>
+          );
+        })}
       </div>
     );
   }
 
-  if (node === 'simulationNode' && state.stakeholderImpacts) {
+  if (node === 'simulationToolNode' && state.stakeholderImpacts) {
     const chartData = Object.keys(state.stakeholderImpacts).map(key => ({
       name: key,
       impact: Number(state.stakeholderImpacts[key]) || 0
@@ -33,12 +37,13 @@ const renderStateDetails = (state, node) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
-            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10 }} domain={[-100, 100]} />
+            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'hsl(var(--text-secondary))', fontSize: 10 }} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fill: 'hsl(var(--text-secondary))', fontSize: 10 }} domain={[-100, 100]} tickFormatter={(value) => `${value}%`} />
             <Tooltip 
               cursor={{fill: 'rgba(255,255,255,0.05)'}} 
               contentStyle={{ backgroundColor: 'rgba(9, 9, 11, 0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white', fontSize: '12px' }}
               itemStyle={{ color: '#e2e8f0' }}
+              formatter={(value) => [`${value}%`, 'Impact']}
             />
             <Bar dataKey="impact" radius={[4, 4, 0, 0]}>
               {chartData.map((entry, index) => (
@@ -51,41 +56,44 @@ const renderStateDetails = (state, node) => {
     );
   }
   
-  if (node === 'criticNode' && state.criticFeedback) {
+  if (node === 'critiqueToolNode') {
     return (
-      <div className="space-y-2 mt-2">
-        {state.criticFeedback.map((item, i) => (
-          <div key={i} className="flex gap-3 text-sm text-slate-300">
-            <span className="text-red-400">•</span>
-            <p>{item}</p>
+      <div className="space-y-4 mt-2">
+        {state.criticFeedback && state.criticFeedback.length > 0 && (
+          <div className="space-y-2">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Identified Risks</span>
+            {state.criticFeedback.map((item, i) => (
+              <div key={i} className="flex gap-3 text-sm text-[hsl(var(--text-secondary))]">
+                <span className="text-red-400">•</span>
+                <p>{typeof item === 'string' ? item : JSON.stringify(item)}</p>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
+        {state.alternatives && state.alternatives.length > 0 && (
+          <div className="space-y-2 mt-4 pt-4 border-t border-slate-700/50">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Proposed Alternatives</span>
+            {state.alternatives.map((item, i) => (
+              <div key={i} className="flex gap-3 text-sm text-[hsl(var(--text-secondary))]">
+                <span className="text-amber-400">•</span>
+                <p>{typeof item === 'string' ? item : JSON.stringify(item)}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
   
-  if (node === 'alternativeNode' && state.alternatives) {
+  if (node === 'finalJudge' && state.finalRecommendation) {
     return (
-      <div className="space-y-2 mt-2">
-        {state.alternatives.map((item, i) => (
-          <div key={i} className="flex gap-3 text-sm text-slate-300">
-            <span className="text-amber-400">•</span>
-            <p>{item}</p>
-          </div>
-        ))}
-      </div>
-    );
-  }
-  
-  if (node === 'judgeNode' && state.finalRecommendation) {
-    return (
-      <div className="mt-2 text-sm text-slate-200 leading-relaxed">
+      <div className="mt-2 text-sm text-[hsl(var(--text-secondary))] leading-relaxed">
         {state.finalRecommendation}
       </div>
     );
   }
   
-  return <p className="text-slate-400 text-sm flex items-center gap-2"><span className="animate-pulse w-2 h-2 bg-blue-500 rounded-full inline-block"></span> Processing...</p>;
+  return <p className="text-[hsl(var(--text-secondary))] text-sm flex items-center gap-2"><span className="animate-pulse w-2 h-2 bg-blue-500 rounded-full inline-block"></span> Processing...</p>;
 };
 
 export default function Simulation() {
@@ -103,6 +111,7 @@ export default function Simulation() {
   const simState = simulations[id] || {};
   const status = simState.status || 'idle';
   const progressLog = simState.progressLog || [];
+  const traceLog = simState.traceLog || [];
   const impactData = simState.impactData || [];
   const finalRecommendation = simState.finalRecommendation || '';
   const finalConfidence = simState.finalConfidence || null;
@@ -161,12 +170,12 @@ export default function Simulation() {
       <div className="flex justify-between items-center py-4 px-6 border-b border-[rgba(0,0,0,0.1)] dark:border-[rgba(255,255,255,0.05)] bg-[hsl(var(--bg-primary))] sticky top-0 z-10">
         <div className="flex flex-col">
           <span className="text-sm font-bold text-[hsl(var(--text-primary))] tracking-wide">Simulation Details</span>
-          <span className="text-xs text-[var(--text-muted)] uppercase">{id}</span>
+          <span className="text-xs text-[hsl(var(--text-muted))] uppercase">{id}</span>
         </div>
       </div>
 
       {/* Main Chat Feed */}
-      <div className="flex-1 overflow-y-auto scroll-smooth pb-40 px-6 pt-8">
+      <div className="flex-1 overflow-y-auto scroll-smooth pb-72 px-6 pt-8">
         
         {/* Intro / Context Bubble */}
         <div className="flex gap-4 mb-8">
@@ -201,15 +210,17 @@ export default function Simulation() {
           </div>
         )}
 
+
+
         {/* Agent Workflow Feed */}
         <AnimatePresence>
           {progressLog.filter(log => log.node !== 'inputNode').map((log, index) => {
             const displayNames = {
-              'evidenceNode': 'Analyzing Logics & Facts',
-              'simulationNode': 'Simulating Stakeholder Impacts',
-              'criticNode': 'Identifying Critical Consequences',
-              'alternativeNode': 'Generating Alternatives',
-              'judgeNode': 'Final Conclusion'
+              'plannerNode': 'Agent Planner',
+              'evidenceToolNode': 'Analyzing Logics & Facts',
+              'simulationToolNode': 'Simulating Stakeholder Impacts',
+              'critiqueToolNode': 'Identifying Critical Consequences',
+              'finalJudge': 'Final Conclusion'
             };
             const displayName = displayNames[log.node] || log.node;
             
@@ -221,7 +232,7 @@ export default function Simulation() {
                 className="flex gap-4 mb-8"
               >
                 <div className="w-8 h-8 rounded-full bg-black/5 dark:bg-slate-800 border border-[rgba(0,0,0,0.1)] dark:border-white/10 flex items-center justify-center shrink-0">
-                  {log.node === 'judgeNode' ? <CheckCircle size={14} className="text-green-500" /> : <Settings size={14} className="text-blue-500" />}
+                  {log.node === 'finalJudge' ? <CheckCircle size={14} className="text-green-500" /> : <Settings size={14} className="text-blue-500" />}
                 </div>
                 <div className="flex-1">
                   <p className="font-bold text-[hsl(var(--text-primary))] text-sm mb-1 flex items-center gap-2">
@@ -231,7 +242,7 @@ export default function Simulation() {
                     {renderStateDetails(log.state, log.node)}
                   </div>
                   
-                  {log.node === 'judgeNode' && finalConfidence !== null && (
+                  {log.node === 'finalJudge' && finalConfidence !== null && (
                     <div className="mt-4 flex items-center gap-3">
                       <span className="text-xs font-bold uppercase text-[hsl(var(--text-muted))]">Confidence</span>
                       <div className="w-48 bg-black/10 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
@@ -249,10 +260,10 @@ export default function Simulation() {
         {/* Decision Actions */}
         {status === 'completed' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-center gap-4 mt-8 mb-12">
-            <button onClick={() => handleFinalDecision('approved')} className="px-6 py-2.5 rounded-full text-sm font-bold bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors">
+            <button onClick={() => handleFinalDecision('approved')} className="px-6 py-2.5 rounded-full text-sm font-bold bg-green-600 border border-green-500 text-white hover:bg-green-500 transition-colors shadow-sm">
               Approve Policy Change
             </button>
-            <button onClick={() => handleFinalDecision('rejected')} className="px-6 py-2.5 rounded-full text-sm font-bold bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors">
+            <button onClick={() => handleFinalDecision('rejected')} className="px-6 py-2.5 rounded-full text-sm font-bold bg-red-600 border border-red-500 text-white hover:bg-red-500 transition-colors shadow-sm">
               Reject Proposal
             </button>
           </motion.div>

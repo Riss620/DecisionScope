@@ -15,9 +15,9 @@ class PdfDocumentParser extends DocumentParser {
         console.warn('No selectable text found, falling back to Gemini API for OCR...');
         try {
           const base64Data = buffer.toString('base64');
-          const apiKey = process.env.OPENAI_API_KEY;
+          const apiKey = process.env.GEMINI_API_KEY || 'sk-mock';
           
-          if (!apiKey) throw new Error('API key not found');
+          if (apiKey === 'sk-mock') throw new Error('Valid Gemini API key required for OCR');
           
           const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
             method: 'POST',

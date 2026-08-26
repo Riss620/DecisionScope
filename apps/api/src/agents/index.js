@@ -1,3 +1,11 @@
+const { 
+  createPlannerNode, 
+  createEvidenceToolNode, 
+  createSimulationToolNode, 
+  createCritiqueToolNode, 
+  createFinalJudgeNode 
+} = require('./decisionAgent');
+
 const createInputNode = (llmProvider) => {
   return async (state) => {
     console.log('--- Input Agent ---');
@@ -155,4 +163,11 @@ module.exports = {
   createCriticNode,
   createAlternativeNode,
   createJudgeNode,
+  
+  // CA1 Assignment Nodes
+  createPlannerNode,
+  createEvidenceToolNode,
+  createSimulationToolNode,
+  createCritiqueToolNode,
+  createFinalJudgeNode
 };

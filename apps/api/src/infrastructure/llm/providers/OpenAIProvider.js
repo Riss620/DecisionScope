@@ -8,8 +8,9 @@ class OpenAIProvider extends LLMProvider {
     const config = {
       modelName: process.env.LLM_MODEL || 'gpt-4o',
       temperature: 0.2,
-      apiKey: process.env.OPENAI_API_KEY,
-      maxRetries: 3,
+      apiKey: process.env.OPENAI_API_KEY || 'sk-mock',
+      maxRetries: 0,
+      timeout: 3000,
     };
     
     if (process.env.OPENAI_BASE_URL) {

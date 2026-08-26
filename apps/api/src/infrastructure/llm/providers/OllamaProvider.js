@@ -24,7 +24,8 @@ class OllamaProvider extends LLMProvider {
           options: {
             temperature: 0.2
           }
-        })
+        }),
+        signal: AbortSignal.timeout(2000)
       });
 
       if (!response.ok) {

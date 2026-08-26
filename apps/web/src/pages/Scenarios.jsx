@@ -41,7 +41,7 @@ export default function Scenarios() {
       {loading ? (
         <div className="glass-panel rounded-2xl p-12 text-center flex justify-center items-center gap-3">
            <span className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"></span>
-           <span className="text-[var(--text-secondary)]">Scanning for active tasks...</span>
+           <span className="text-[hsl(var(--text-secondary))]">Scanning for active tasks...</span>
         </div>
       ) : activeScenarios.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -55,7 +55,7 @@ export default function Scenarios() {
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/15 transition-all duration-500"></div>
               <div className="flex justify-between items-start mb-4 relative z-10">
-                <span className="text-xs font-mono bg-white/5 text-[var(--text-secondary)] px-2 py-1 rounded border border-white/5">{scenario.id}</span>
+                <span className="text-xs font-mono bg-white/5 text-[hsl(var(--text-secondary))] px-2 py-1 rounded border border-white/5">{scenario.id}</span>
                 <span className="flex items-center gap-2 text-xs font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full border border-blue-500/20">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
                   PROCESSING

@@ -17,11 +17,11 @@ const { SocketEventPublisher } = require('./infrastructure/events/SocketEventPub
 // Agents & Orchestration
 const {
   createInputNode,
-  createEvidenceNode,
-  createSimulationNode,
-  createCriticNode,
-  createAlternativeNode,
-  createJudgeNode
+  createPlannerNode,
+  createEvidenceToolNode,
+  createSimulationToolNode,
+  createCritiqueToolNode,
+  createFinalJudgeNode
 } = require('./agents/index');
 const { createDecisionGraph } = require('./orchestration/decisionGraph');
 
@@ -43,7 +43,7 @@ async function bootstrap() {
 
   // 1. Instantiate Infrastructure
   const llmProvider = createLLMProvider(); // primary model (llama3)
-  const secondaryLlmProvider = createLLMProvider('phi3'); // secondary model for critics/input
+  const secondaryLlmProvider = createLLMProvider(); // secondary model for critics/input
   const storageProvider = new LocalFileStorageProvider(process.env.STORAGE_PATH || './storage');
   const retrievalProvider = new QdrantRetrievalProvider(process.env.QDRANT_URL, process.env.QDRANT_API_KEY);
   const eventPublisher = new SocketEventPublisher(io);
@@ -57,11 +57,11 @@ async function bootstrap() {
   // 2. Instantiate Agents (Business Logic)
   const agents = {
     inputNode: createInputNode(secondaryLlmProvider),
-    evidenceNode: createEvidenceNode(llmProvider, null), // Pass null to use dynamic LLM generation instead of hardcoded mock
-    simulationNode: createSimulationNode(llmProvider),
-    criticNode: createCriticNode(secondaryLlmProvider),
-    alternativeNode: createAlternativeNode(),
-    judgeNode: createJudgeNode(llmProvider),
+    plannerNode: createPlannerNode(llmProvider),
+    evidenceToolNode: createEvidenceToolNode(llmProvider, retrievalProvider),
+    simulationToolNode: createSimulationToolNode(llmProvider),
+    critiqueToolNode: createCritiqueToolNode(llmProvider),
+    finalJudge: createFinalJudgeNode(llmProvider),
   };
 
   // 3. Compile Graph (Orchestration)

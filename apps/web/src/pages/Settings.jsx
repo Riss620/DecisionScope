@@ -28,7 +28,7 @@ export default function Settings() {
 
       <div className="glass-panel rounded-2xl overflow-hidden mt-6">
         <div className="p-6 border-b border-white/5">
-          <h3 className="font-bold text-[var(--text-secondary)] tracking-wider uppercase text-xs">Profile Information</h3>
+          <h3 className="font-bold text-[hsl(var(--text-secondary))] tracking-wider uppercase text-xs">Profile Information</h3>
         </div>
         
         <div className="p-6 space-y-6">

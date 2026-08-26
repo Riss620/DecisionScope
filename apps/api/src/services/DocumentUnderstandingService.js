@@ -1,13 +1,9 @@
-const { ChatOpenAI } = require('@langchain/openai');
 const { PromptTemplate } = require('@langchain/core/prompts');
+const { createLLMProvider } = require('../infrastructure/llm/createLLMProvider');
 
 class DocumentUnderstandingService {
   constructor() {
-    this.model = new ChatOpenAI({
-      modelName: process.env.LLM_MODEL || 'gemini-3.6-flash',
-      temperature: 0.1,
-      maxRetries: 3
-    });
+    this.llmProvider = createLLMProvider();
   }
 
   async extractDecisionInput(document) {
@@ -50,18 +46,21 @@ class DocumentUnderstandingService {
         documentId: document.documentId
       });
 
-      const response = await this.model.invoke(formattedPrompt);
-      let content = response.content.trim();
+      const responseContent = await this.llmProvider.generateText([{ role: 'user', content: formattedPrompt }]);
+      let content = responseContent.trim();
       
-      if (content.startsWith('\`\`\`json')) {
-        content = content.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+      // Extract JSON block in case the LLM wrapped it in markdown or conversational text
+      const firstBrace = content.indexOf('{');
+      const lastBrace = content.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        content = content.substring(firstBrace, lastBrace + 1);
       }
 
       const parsed = JSON.parse(content);
       return parsed;
     } catch (error) {
-      console.error('LLM Extraction Error:', error);
-      throw new Error(`Failed to extract structured data from document: ${error.message}`);
+      console.error('LLM Extraction Error:', error.message);
+      throw new Error(`Failed to extract structured decision from document: ${error.message}`);
     }
   }
 }

@@ -3,28 +3,47 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 
+import { useSimulation } from '../contexts/SimulationContext';
+
 export default function Dashboard() {
   const [stats, setStats] = useState({ total: 0, byStatus: {}, avgConfidence: 0 });
   const [loading, setLoading] = useState(true);
   const { fetchWithAuth } = useAuth();
+  const { socket } = useSimulation();
+
+  const fetchStats = async () => {
+    try {
+      const res = await fetchWithAuth('/api/decisions/stats');
+      if (res.ok) {
+        const data = await res.json();
+        setStats(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await fetchWithAuth('/api/decisions/stats');
-        if (res.ok) {
-          const data = await res.json();
-          setStats(data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch stats:', err);
-      } finally {
-        setLoading(false);
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    
+    const handleSocketEvent = (eventName) => {
+      if (eventName.startsWith('simulation:')) {
+        fetchStats();
       }
     };
     
-    fetchStats();
-  }, []);
+    socket.onAny(handleSocketEvent);
+    
+    return () => {
+      socket.offAny(handleSocketEvent);
+    };
+  }, [socket, fetchWithAuth]);
 
   // Mock data for the chart since we don't have time-series volume in the DB right now
   const chartData = [
@@ -44,7 +63,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
         <div className="glass-panel p-6 rounded-2xl relative overflow-hidden group hover-lift cursor-default">
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-blue-500/20 transition-all duration-500"></div>
-          <h3 className="text-[var(--text-secondary)] text-xs font-bold uppercase tracking-wider">Total Decisions Evaluated</h3>
+          <h3 className="text-[hsl(var(--text-secondary))] text-xs font-bold uppercase tracking-wider">Total Decisions Evaluated</h3>
           <p className="text-4xl font-extrabold text-[hsl(var(--text-primary))] mt-3 font-heading">
             {loading ? <span className="animate-pulse">--</span> : stats.total}
           </p>
@@ -52,7 +71,7 @@ export default function Dashboard() {
         
         <div className="glass-panel p-6 rounded-2xl relative overflow-hidden group hover-lift cursor-default">
           <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-green-500/20 transition-all duration-500"></div>
-          <h3 className="text-[var(--text-secondary)] text-xs font-bold uppercase tracking-wider">Average Confidence Score</h3>
+          <h3 className="text-[hsl(var(--text-secondary))] text-xs font-bold uppercase tracking-wider">Average Confidence Score</h3>
           <p className="text-4xl font-extrabold text-[hsl(var(--text-primary))] mt-3 font-heading">
             {loading ? <span className="animate-pulse">--</span> : `${stats.avgConfidence}%`}
           </p>
@@ -60,7 +79,7 @@ export default function Dashboard() {
         
         <div className="glass-panel p-6 rounded-2xl relative overflow-hidden group hover-lift cursor-default">
           <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-red-500/20 transition-all duration-500"></div>
-          <h3 className="text-[var(--text-secondary)] text-xs font-bold uppercase tracking-wider">Refused / Error Rate</h3>
+          <h3 className="text-[hsl(var(--text-secondary))] text-xs font-bold uppercase tracking-wider">Refused / Error Rate</h3>
           <p className="text-4xl font-extrabold text-[hsl(var(--text-primary))] mt-3 font-heading">
             {loading ? <span className="animate-pulse">--</span> : stats.byStatus['error'] || 0}
           </p>
@@ -68,7 +87,7 @@ export default function Dashboard() {
       </div>
 
       <div className="glass-panel p-6 rounded-2xl h-96 relative overflow-hidden mt-8">
-        <h3 className="font-bold text-[var(--text-secondary)] tracking-wider uppercase text-xs mb-6">Decision Volume (7 Days)</h3>
+        <h3 className="font-bold text-[hsl(var(--text-secondary))] tracking-wider uppercase text-xs mb-6">Decision Volume (7 Days)</h3>
         <ResponsiveContainer width="100%" height="85%">
           <AreaChart data={chartData} margin={{ top: 10, right: 30, left: -20, bottom: 0 }}>
             <defs>
@@ -78,8 +97,8 @@ export default function Dashboard() {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'hsl(var(--text-secondary))', fontSize: 12 }} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fill: 'hsl(var(--text-secondary))', fontSize: 12 }} />
             <Tooltip 
               contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
               itemStyle={{ color: '#60a5fa' }}

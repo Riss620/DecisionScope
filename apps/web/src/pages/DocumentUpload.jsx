@@ -76,22 +76,22 @@ export default function DocumentUpload() {
     } catch (err) {
       console.error(err);
       setStatus('error');
-      setErrorMsg(err.message);
+      setErrorMsg(typeof err.message === 'string' ? err.message : JSON.stringify(err.message));
     }
   };
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-2xl mx-auto">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-extrabold text-white tracking-tight font-heading">Intelligent <span className="text-blue-500">Ingestion</span></h2>
+        <h2 className="text-3xl font-extrabold text-[hsl(var(--text-primary))] tracking-tight font-heading">Intelligent <span className="text-blue-500">Ingestion</span></h2>
       </div>
 
       <div className="glass-panel rounded-2xl p-10 relative overflow-hidden group">
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/20 transition-all duration-700"></div>
         
         <div className="text-center mb-8 relative z-10">
-          <h3 className="text-xl font-bold text-white mb-2 font-heading">Upload Policy Document</h3>
-          <p className="text-[var(--text-secondary)] text-sm">Upload a PDF, DOC, or DOCX to automatically extract policy parameters and create a decision simulation.</p>
+          <h3 className="text-xl font-bold text-[hsl(var(--text-primary))] mb-2 font-heading">Upload Policy Document</h3>
+          <p className="text-[hsl(var(--text-secondary))] text-sm">Upload a PDF, DOC, or DOCX to automatically extract policy parameters and create a decision simulation.</p>
         </div>
 
         <div 
@@ -114,14 +114,14 @@ export default function DocumentUpload() {
           {file ? (
             <div className="flex flex-col items-center">
               <FileText size={48} className="text-blue-400 mb-4" />
-              <p className="text-white font-medium">{file.name}</p>
-              <p className="text-[var(--text-secondary)] text-xs mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+              <p className="text-[hsl(var(--text-primary))] font-medium">{file.name}</p>
+              <p className="text-[hsl(var(--text-secondary))] text-xs mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
             </div>
           ) : (
             <div className="flex flex-col items-center">
-              <UploadCloud size={48} className="text-[var(--text-secondary)] mb-4" />
-              <p className="text-[var(--text-secondary)] mb-2">Drag and drop your file here, or click to browse</p>
-              <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider font-bold">Supports PDF, DOC, DOCX up to 10MB</p>
+              <UploadCloud size={48} className="text-[hsl(var(--text-secondary))] mb-4" />
+              <p className="text-[hsl(var(--text-secondary))] mb-2">Drag and drop your file here, or click to browse</p>
+              <p className="text-[hsl(var(--text-muted))] text-xs uppercase tracking-wider font-bold">Supports PDF, DOC, DOCX up to 10MB</p>
             </div>
           )}
         </div>
@@ -135,7 +135,7 @@ export default function DocumentUpload() {
 
         {(status === 'uploading' || status === 'processing' || status === 'complete') && (
           <div className="mb-6 relative z-10">
-            <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
+            <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-[hsl(var(--text-secondary))] mb-2">
               <span>{status === 'uploading' ? 'Uploading...' : status === 'processing' ? 'Extracting & Analyzing...' : 'Complete!'}</span>
               <span>{progress}%</span>
             </div>
@@ -154,7 +154,7 @@ export default function DocumentUpload() {
           <button 
             onClick={() => setFile(null)}
             disabled={!file || (status !== 'idle' && status !== 'error')}
-            className="px-6 py-2.5 rounded-xl text-sm font-bold text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50"
+            className="px-6 py-2.5 rounded-xl text-sm font-bold text-[hsl(var(--text-secondary))] hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50"
           >
             Clear
           </button>

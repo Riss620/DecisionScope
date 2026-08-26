@@ -86,14 +86,14 @@ export default function DocumentReview() {
         <div className="flex flex-col gap-6">
           
           <div className="flex flex-col">
-            <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-bold mb-2">Document Ingestion</span>
+            <span className="text-xs text-[hsl(var(--text-muted))] uppercase tracking-wider font-bold mb-2">Document Ingestion</span>
             <h2 className="text-2xl font-bold text-[hsl(var(--text-primary))] font-heading">{document.filename}</h2>
           </div>
 
           <div className="border-t border-[rgba(0,0,0,0.1)] dark:border-[rgba(255,255,255,0.05)] my-4"></div>
 
           <div className="flex flex-col gap-4">
-            <p className="text-[var(--text-secondary)] text-sm">
+            <p className="text-[hsl(var(--text-secondary))] text-sm">
               I've extracted the following structured decision from the document. Please review it before we start the simulation.
             </p>
 
@@ -109,39 +109,39 @@ export default function DocumentReview() {
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Policy Name</label>
+                  <label className="block text-[10px] font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-1">Policy Name</label>
                   <input type="text" value={decisionInput.policy?.name || ''} onChange={(e) => updateField('policy.name', e.target.value)} className="w-full bg-transparent text-sm text-[hsl(var(--text-primary))] focus:outline-none border-b border-transparent focus:border-[rgba(0,0,0,0.2)] dark:focus:border-[rgba(255,255,255,0.2)] pb-1 transition-colors" />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Parameter</label>
+                    <label className="block text-[10px] font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-1">Parameter</label>
                     <input type="text" value={decisionInput.change?.parameter || ''} onChange={(e) => updateField('change.parameter', e.target.value)} className="w-full bg-transparent text-sm text-[hsl(var(--text-primary))] focus:outline-none border-b border-transparent focus:border-[rgba(0,0,0,0.2)] dark:focus:border-[rgba(255,255,255,0.2)] pb-1 transition-colors" />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Unit</label>
+                    <label className="block text-[10px] font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-1">Unit</label>
                     <input type="text" value={decisionInput.change?.unit || ''} onChange={(e) => updateField('change.unit', e.target.value)} className="w-full bg-transparent text-sm text-[hsl(var(--text-primary))] focus:outline-none border-b border-transparent focus:border-[rgba(0,0,0,0.2)] dark:focus:border-[rgba(255,255,255,0.2)] pb-1 transition-colors" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Current Value</label>
+                    <label className="block text-[10px] font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-1">Current Value</label>
                     <input type="text" value={decisionInput.change?.currentValue || ''} onChange={(e) => updateField('change.currentValue', e.target.value)} className="w-full bg-transparent text-sm text-[hsl(var(--text-primary))] focus:outline-none border-b border-transparent focus:border-[rgba(0,0,0,0.2)] dark:focus:border-[rgba(255,255,255,0.2)] pb-1 transition-colors" />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Proposed Value</label>
+                    <label className="block text-[10px] font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-1">Proposed Value</label>
                     <input type="text" value={decisionInput.change?.proposedValue || ''} onChange={(e) => updateField('change.proposedValue', e.target.value)} className="w-full bg-transparent text-sm text-[hsl(var(--text-primary))] focus:outline-none border-b border-transparent focus:border-[rgba(0,0,0,0.2)] dark:focus:border-[rgba(255,255,255,0.2)] pb-1 transition-colors" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Effective Date</label>
+                  <label className="block text-[10px] font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-1">Effective Date</label>
                   <input type="text" value={decisionInput.effectiveDate || ''} onChange={(e) => updateField('effectiveDate', e.target.value)} className="w-full bg-transparent text-sm text-[hsl(var(--text-primary))] focus:outline-none border-b border-transparent focus:border-[rgba(0,0,0,0.2)] dark:focus:border-[rgba(255,255,255,0.2)] pb-1 transition-colors" />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Stakeholders (comma separated)</label>
+                  <label className="block text-[10px] font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-1">Stakeholders (comma separated)</label>
                   <input type="text" value={decisionInput.stakeholders?.join(', ') || ''} onChange={(e) => updateArray('stakeholders', e.target.value)} className="w-full bg-transparent text-sm text-[hsl(var(--text-primary))] focus:outline-none border-b border-transparent focus:border-[rgba(0,0,0,0.2)] dark:focus:border-[rgba(255,255,255,0.2)] pb-1 transition-colors" />
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default function DocumentReview() {
               <button onClick={() => navigate('/documents/upload')} className="btn-ghost px-5 py-2.5 rounded-lg text-sm">Cancel</button>
             </div>
             
-            <p className="text-xs text-[var(--text-muted)] mt-2">
+            <p className="text-xs text-[hsl(var(--text-muted))] mt-2">
               The user can correct something before the agents continue.<br/>
               That is much safer than allowing the LLM to blindly consume an entire document.
             </p>

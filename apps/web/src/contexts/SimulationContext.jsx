@@ -29,6 +29,7 @@ export function SimulationProvider({ children }) {
             const currentSim = prev[id] || {
               status: 'idle',
               progressLog: [],
+              traceLog: [],
               impactData: [],
               finalRecommendation: '',
               finalConfidence: null,
@@ -60,6 +61,8 @@ export function SimulationProvider({ children }) {
                 updatedSim.status = 'error';
                 updatedSim.errorMessage = data.state.error;
               }
+            } else if (type === 'trace') {
+              updatedSim.traceLog = [...(updatedSim.traceLog || []), data];
             } else if (type === 'complete') {
               updatedSim.status = 'completed';
             } else if (type === 'error') {
@@ -98,6 +101,7 @@ export function SimulationProvider({ children }) {
         [id]: {
           status: 'idle',
           progressLog: [],
+          traceLog: [],
           impactData: [],
           finalRecommendation: '',
           finalConfidence: null,
@@ -127,6 +131,7 @@ export function SimulationProvider({ children }) {
         ...(prev[id] || {}),
         status: 'running',
         progressLog: [],
+        traceLog: [],
         impactData: [],
         finalRecommendation: '',
         finalConfidence: null,
