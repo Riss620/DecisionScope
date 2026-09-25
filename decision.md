@@ -23,7 +23,7 @@ DecisionScope aims to simplify this process by combining:
 
 🤖 Agentic AI workflows
 
-🔎 Semantic search
+//🔎 Semantic search
 
 🧠 Context-aware reasoning
 
