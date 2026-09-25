@@ -685,28 +685,4 @@ placeholder until the repository's licensing decision is finalized.
 
 👨‍💻 Project
 
-DecisionScope
-
-GitHub:
-
-https://github.com/Riss620/DecisionScope
-
-Built as an Agentic AI & Intelligent Automation project focused on
-document intelligence, semantic retrieval, and decision support.
-
-⭐ Support the Project
-
-If you find DecisionScope useful:
-
-⭐ Star the repository
-
-🐛 Report issues
-
-💡 Suggest improvements
-
-🔀 Submit pull requests
-
-📢 Share the project
-
-DecisionScope --- From information to insight, from insight to
-informed decisions.
+D
